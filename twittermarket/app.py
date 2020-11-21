@@ -3,7 +3,7 @@ import mysql.connector
 import io
 import json
 from twittermarket import bcrypt, create_app, config, mycursor, db, api
-from flask import request
+from flask import request, Response
 
 app = create_app()
 
@@ -38,16 +38,18 @@ def register_account(rname, rusername, remail, rpassword, rproduct, rlocation):
 
 
 # login auth stuff
-# @app.route('/login_auth/<string:lemail>/<string:lpassword>', methods = ['POST'])
-# def auth_login(lemail, lpassword):
+@app.route('/login_auth/<string:lemail>/<string:lpassword>', methods = ['POST'])
+def auth_login(lemail, lpassword):
 
-#     q = "SELECT * FROM USER WHERE email = {} AND password = {}".format(lemail, lpassword)
+    # q = "SELECT * FROM USER WHERE email = {} AND password = {}".format(lemail, lpassword)
 
-#     x = mycursor.execute(q)
+    mycursor.execute('SELECT * FROM Users WHERE email = %s AND password = %s', (lemail, lpassword,))
     
-#     # string = "name: {}, username {}, email {}, password {}, product {}, location {}".format(name, username, email, password, product, location)
+    for x in mycursor:
+        return str(x)
+    # string = "name: {}, username {}, email {}, password {}, product {}, location {}".format(name, username, email, password, product, location)
 
-#     return "yo"
+    return 'hey'
 
 
 #chart stuff
@@ -62,7 +64,7 @@ def get_analyze_of_product(product):
 
     #get all tweets
     for tweet in tweets:
-        tweets_text.append(tweet.text) 
+        tweets_text.append(tweet.text)
 
 
     #send to machine learning module
@@ -72,6 +74,7 @@ def get_analyze_of_product(product):
     return Response(json.dumps(tweets_text),  mimetype='application/json')
 
 
+#handles requestes sent by streamer.py
 @app.route('/newrequest/<string:tweet_text>/<string:user_name>/<string:user_screen_name>/<string:user_city>/<string:user_time_requested>', methods = ['POST'])
 def stream(tweet_text, user_name, user_screen_name, user_city, user_time_requested):
     
@@ -83,6 +86,16 @@ def stream(tweet_text, user_name, user_screen_name, user_city, user_time_request
     return "Tweet: {}, Name: {}, ScreenName: {}, City: {}, Time: {}".format(tweet_text,user_name, user_screen_name, user_city, user_time_requested)
 
 
+#returns all products in the database
+@app.route('/allproducts', methods = ['GET'])
+def all_products():
+
+    mycursor.execute("SELECT * FROM Products")
+    allProducts = []
+    for x in mycursor:
+        allProducts.append(x)
+
+    return Response(json.dumps(allProducts),  mimetype='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True)
