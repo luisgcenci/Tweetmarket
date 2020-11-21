@@ -2,7 +2,7 @@ import tweepy
 import mysql.connector
 import io
 import json
-from twittermarket import bcrypt, create_app, config, mycursor, db, api
+from twittermarket import create_app, config, mycursor, db, api
 from flask import request, Response
 import csv
 import pandas as pd
@@ -28,11 +28,11 @@ def home():
     return "home"
 
 #register account
-@app.route('/register_account/<string:rname>/<string:rusername>/<string:remail>/<string:rpassword>/<string:rproduct>/<string:rlocation>', methods = ['POST'])
-def register_account(rname, rusername, remail, rpassword, rproduct, rlocation):
+@app.route('/register_account/<string:rusername>/<string:rproduct>/<string:rlocation>', methods = ['POST'])
+def register_account(rusername, rproduct, rlocation):
     
     #add user to database table USER
-    mycursor.execute("INSERT INTO Users(name, username, email, password, product, city) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (rname, rusername, remail, rpassword, rproduct, rlocation))
+    mycursor.execute("INSERT INTO Users(username, product, location) VALUES ('%s', '%s', '%s')" % (rusername, rproduct, rlocation))
     db.commit()
 
     #add product to table Products
@@ -43,18 +43,18 @@ def register_account(rname, rusername, remail, rpassword, rproduct, rlocation):
 
 
 # login auth stuff
-@app.route('/login_auth/<string:lemail>/<string:lpassword>', methods = ['POST'])
-def auth_login(lemail, lpassword):
+# @app.route('/login_auth/<string:lemail>/<string:lpassword>', methods = ['POST'])
+# def auth_login(lemail, lpassword):
 
-    # q = "SELECT * FROM USER WHERE email = {} AND password = {}".format(lemail, lpassword)
+#     # q = "SELECT * FROM USER WHERE email = {} AND password = {}".format(lemail, lpassword)
 
-    mycursor.execute('SELECT * FROM Users WHERE email = %s AND password = %s', (lemail, lpassword,))
+#     mycursor.execute('SELECT * FROM Users WHERE email = %s AND password = %s', (lemail, lpassword,))
     
-    for x in mycursor:
-        return str(x)
-    # string = "name: {}, username {}, email {}, password {}, product {}, location {}".format(name, username, email, password, product, location)
+#     for x in mycursor:
+#         return str(x)
+#     # string = "name: {}, username {}, email {}, password {}, product {}, location {}".format(name, username, email, password, product, location)
 
-    return 'hey'
+#     return 'hey'
 
 
 #chart stuff
@@ -133,10 +133,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 #returns all requests to given suppler
-@app.route('/get_requests/<string:product>/<string:city>', methods = ['GET'])
-def get_requests(product, city):
+@app.route('/get_requests/<string:product>/<string:location>', methods = ['GET'])
+def get_requests(product, location):
 
-    mycursor.execute('SELECT * FROM Requests WHERE product = %s AND city = %s', (product, city))
+    mycursor.execute('SELECT * FROM Requests WHERE product = %s AND city = %s', (product, location))
     allRequests = []
 
     for x in mycursor:

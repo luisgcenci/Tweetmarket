@@ -1,5 +1,4 @@
 from flask import Flask, Response
-from flask_bcrypt import Bcrypt
 from twittermarket import config
 import mysql.connector
 import subprocess
@@ -19,14 +18,10 @@ auth = tweepy.OAuthHandler(config.TwitterDevConfig.consumer_key, config.TwitterD
 auth.set_access_token(config.TwitterDevConfig.access_token, config.TwitterDevConfig.access_token_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
-bcrypt = Bcrypt()
 mycursor = db.cursor()
 
 def create_app(config_class = config.FlaskConfig):
     app = Flask(__name__)
     app.config.from_object(config.FlaskConfig)
-
-    #encryption
-    bcrypt.init_app(app)
     
     return app

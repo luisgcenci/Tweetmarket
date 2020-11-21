@@ -1,7 +1,4 @@
-import subprocess
+x = [[3, "Guilherme Cenci", "guilhermecenci5", "Hem\u00e1cias ~wine", "wine", "Atlanta", "2020-11-21 16:49:30"], [5, "Guilherme Cenci", "guilhermecenci5", "Hell yea it\u0092s working give me some ~wine today", "wine", "Atlanta", "2020-11-21 17:05:55"], [6, "Guilherme Cenci", "guilhermecenci5", "Hello ~wine please", "wine", "Atlanta", "2020-11-21 19:29:20"]]
 
-#get products that should be filtered
-products = subprocess.run("curl -X GET http://localhost:5000/allproducts", shell=True,capture_output=True)
-products_str = products.stdout.decode('utf-8')
-
-print(products_str)
+for i in x:
+  print(i[6])
