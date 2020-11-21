@@ -4,6 +4,12 @@ import io
 import json
 from twittermarket import bcrypt, create_app, config, mycursor, db, api
 from flask import request, Response
+import csv
+import pandas as pd
+import numpy as np
+from twittermarket import sentiment
+import subprocess
+ 
 
 app = create_app()
 
@@ -24,10 +30,9 @@ def home():
 #register account
 @app.route('/register_account/<string:rname>/<string:rusername>/<string:remail>/<string:rpassword>/<string:rproduct>/<string:rlocation>', methods = ['POST'])
 def register_account(rname, rusername, remail, rpassword, rproduct, rlocation):
-    hashed_password = bcrypt.generate_password_hash(rpassword).decode('utf-8')
     
     #add user to database table USER
-    mycursor.execute("INSERT INTO Users(name, username, email, password, product, city) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (rname, rusername, remail, hashed_password, rproduct, rlocation))
+    mycursor.execute("INSERT INTO Users(name, username, email, password, product, city) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (rname, rusername, remail, rpassword, rproduct, rlocation))
     db.commit()
 
     #add product to table Products
@@ -53,25 +58,41 @@ def auth_login(lemail, lpassword):
 
 
 #chart stuff
-@app.route('/get_analyze/<string:product>', methods = ['POST'])
+@app.route('/get_analyze/<string:product>', methods = ['GET'])
 def get_analyze_of_product(product):
     
-    count = 10
+    count = 100
     tweets = api.search(product, count = count)
 
-    #list that holds twitters texts 
-    tweets_text = []
+    tweets_info = []
 
-    #get all tweets
     for tweet in tweets:
-        tweets_text.append(tweet.text)
+        # tweets_text.append(tweet.text)
 
+        user_id = tweet.user.id
+        date_time = str(tweet.created_at)
+        user_screen_name = tweet.user.screen_name
+        tweet = tweet.text
+
+        row = [user_id, date_time, user_screen_name, tweet]
+        tweets_info.append(row)
+
+    df= pd.DataFrame(np.array(tweets_info))
+    
+    df.to_csv("products.csv", index = False, header = False)
+    
+    listt = sentiment.run(len(df))
+
+    #detele products.csv
+    subprocess.run('rm -r products.csv', shell=True)
+
+    return Response(json.dumps(listt),  mimetype='application/json')
 
     #send to machine learning module
     #get results back
     #send back to front end
 
-    return Response(json.dumps(tweets_text),  mimetype='application/json')
+    # return Response(json.dumps(tweets_text),  mimetype='application/json')
 
 
 #handles requestes sent by streamer.py
@@ -82,8 +103,19 @@ def stream(tweet_text, user_name, user_screen_name, user_city, user_time_request
     user_name = user_name.replace("_"," ")
     user_city = user_city.replace("_"," ")
     user_time_requested = user_time_requested.replace("_", " ")
+    product_item = ""
 
-    return "Tweet: {}, Name: {}, ScreenName: {}, City: {}, Time: {}".format(tweet_text,user_name, user_screen_name, user_city, user_time_requested)
+    for i in tweet_text.split(' '):
+        if(i[0]=='~'):
+            if(i.index('~')==len(i)-i[::-1].index('~')-1):
+                i = i.replace("~", "")
+                product_item = i
+
+    
+    mycursor.execute("INSERT INTO Requests(name, username, tweet, product, city, time_requested) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (user_name, user_screen_name, tweet_text, product_item, user_city, user_time_requested))
+    db.commit()
+
+    return "Request Sent"
 
 
 #returns all products in the database
@@ -96,6 +128,21 @@ def all_products():
         allProducts.append(x)
 
     return Response(json.dumps(allProducts),  mimetype='application/json')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+#returns all requests to given suppler
+@app.route('/get_requests/<string:product>/<string:city>', methods = ['GET'])
+def get_requests(product, city):
+
+    mycursor.execute('SELECT * FROM Requests WHERE product = %s AND city = %s', (product, city))
+    allRequests = []
+
+    for x in mycursor:
+        allRequests.append(x)
+
+    return Response(json.dumps(allRequests),  mimetype='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True)
