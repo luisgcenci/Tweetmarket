@@ -16,6 +16,7 @@ app = create_app()
 
 @app.route('/', methods = ['GET', 'POST'])
 def home():
+
     return "home"
 
 #register account
@@ -23,7 +24,7 @@ def home():
 def register_account(rusername, rproduct, rlocation):
     
     #add user to database table USER
-    mycursor.execute("INSERT INTO Users(username, product, location) VALUES ('%s', '%s', '%s')" % (rusername, rproduct, rlocation))
+    mycursor.execute("INSERT INTO Users(name, product, location) VALUES ('%s', '%s', '%s')" % (rusername, rproduct, rlocation))
     db.commit()
 
     #add product to table Products
@@ -58,11 +59,31 @@ def get_analyze_of_product(product):
     df.to_csv("products.csv", index = False, header = False)
     
     listt = sentiment.run(len(df))
+    
+    feedback_total = len(listt)
+    feedback_positive = 0
+    feedback_negative = 0
+    feedback_neutral = 0
+
+
+    for x in listt:
+        feedback = x.get('label')
+        if feedback == "POSITIVE":
+            feedback_positive += 1
+        elif feedback == "NEGATIVE":
+            feedback_negative +=  1
+        elif feedback == "NEUTRAL":
+            feedback_neutral += 1
+
+    feedbacks = {}
+    feedbacks['positive'] = int( (feedback_positive / feedback_total) * 100)
+    feedbacks['negative'] = int( (feedback_negative / feedback_total) * 100)
+    feedbacks['neutral'] = int( (feedback_neutral / feedback_total) * 100)
 
     #detele products.csv
     subprocess.run('rm -r products.csv', shell=True)
-
-    return Response(json.dumps(listt),  mimetype='application/json')
+        
+    return feedbacks
 
 
 #handles requestes sent by streamer.py
@@ -81,11 +102,12 @@ def stream(tweet_text, user_name, user_screen_name, user_city, user_time_request
                 i = i.replace("~", "")
                 product_item = i
 
+    tweet_text = tweet_text.replace("~","!")
     
     mycursor.execute("INSERT INTO Requests(name, username, tweet, product, city, time_requested) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (user_name, user_screen_name, tweet_text, product_item, user_city, user_time_requested))
     db.commit()
 
-    return "Request Sent"
+    return "Request Sent!"
 
 
 #returns all products in the database

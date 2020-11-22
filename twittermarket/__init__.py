@@ -6,10 +6,10 @@ import tweepy
 
 #database connection
 db = mysql.connector.connect(
-    host = '127.0.0.1',
-    user = 'lcenci',
-    password = 'root',
-    database = 'hack_db'
+    host = 'sql9.freemysqlhosting.net',
+    user = 'sql9377984',
+    password = 'PY5dmGwlHD',
+    database = 'sql9377984'
 )
 
 
