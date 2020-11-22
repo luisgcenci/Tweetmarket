@@ -36,7 +36,7 @@ class MyStreamListener(tweepy.StreamListener):
 #create stream
 myStreamListener = MyStreamListener()
 myStream = tweepy.Stream (auth = api.auth, listener = myStreamListener)
-myStream.filter(track = ['!wine'])
+myStream.filter(track = ['!wine','!snacks','!coffee'])
 
 #get products that should be filtered
 # products = subprocess.run("curl -X GET http://localhost:5000/allproducts", shell=True,capture_output=True)
