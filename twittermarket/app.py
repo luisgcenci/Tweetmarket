@@ -19,9 +19,16 @@ def home():
 
     return "home"
 
+#/<string:rusername>/<string:rproduct>/<string:rlocation>
 #register account
-@app.route('/register_account/<string:rusername>/<string:rproduct>/<string:rlocation>', methods = ['POST'])
-def register_account(rusername, rproduct, rlocation):
+@app.route('/register_account', methods = ['POST'])
+def register_account():
+    
+    data_in_json = request.json
+
+    rusername = data_in_json.get('name')
+    rproduct = data_in_json.get('product')
+    rlocation = data_in_json.get('city')
     
     #add user to database table USER
     mycursor.execute("INSERT INTO Users(name, product, location) VALUES ('%s', '%s', '%s')" % (rusername, rproduct, rlocation))
@@ -31,7 +38,7 @@ def register_account(rusername, rproduct, rlocation):
     mycursor.execute("INSERT INTO Products(product_name) VALUES ('%s')" % (rproduct))
     db.commit()
 
-    return "Account Registered Successfully"
+    return "Successfuly Registeres"
 
 
 # chart stuff
@@ -123,8 +130,12 @@ def all_products():
 
 
 #returns all requests to given suppler
-@app.route('/get_requests/<string:product>/<string:location>', methods = ['GET'])
-def get_requests(product, location):
+@app.route('/get_requests', methods = ['POST'])
+def get_requests():
+
+    data_in_json = request.json
+    product = data_in_json.get('product')
+    city = data_in_json.get('city')
 
     mycursor.execute('SELECT * FROM Requests WHERE product = %s AND city = %s', (product, location))
     allRequests = []

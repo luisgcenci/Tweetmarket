@@ -30,7 +30,7 @@ class MyStreamListener(tweepy.StreamListener):
             
             user_time_requested = str(status.created_at)
             user_time_requested = user_time_requested.replace(" ", "_")
-            url = "curl -i -X POST http://localhost:5000/newrequest/{}/{}/{}/{}/{}".format(tweet, user_name, user_screen_name, user_city, user_time_requested)
+            url = "curl -i -X POST http://23.239.24.16:5000/newrequest/{}/{}/{}/{}/{}".format(tweet, user_name, user_screen_name, user_city, user_time_requested)
             subprocess.run(url, shell=True)
 
 #create stream
