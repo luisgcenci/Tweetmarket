@@ -58,41 +58,41 @@ def register_account(rusername, rproduct, rlocation):
 
 
 #chart stuff
-@app.route('/get_analyze/<string:product>', methods = ['GET'])
-def get_analyze_of_product(product):
+# @app.route('/get_analyze/<string:product>', methods = ['GET'])
+# def get_analyze_of_product(product):
     
-    count = 100
-    tweets = api.search(product, count = count)
+#     count = 100
+#     tweets = api.search(product, count = count)
 
-    tweets_info = []
+#     tweets_info = []
 
-    for tweet in tweets:
-        # tweets_text.append(tweet.text)
+#     for tweet in tweets:
+#         # tweets_text.append(tweet.text)
 
-        user_id = tweet.user.id
-        date_time = str(tweet.created_at)
-        user_screen_name = tweet.user.screen_name
-        tweet = tweet.text
+#         user_id = tweet.user.id
+#         date_time = str(tweet.created_at)
+#         user_screen_name = tweet.user.screen_name
+#         tweet = tweet.text
 
-        row = [user_id, date_time, user_screen_name, tweet]
-        tweets_info.append(row)
+#         row = [user_id, date_time, user_screen_name, tweet]
+#         tweets_info.append(row)
 
-    df= pd.DataFrame(np.array(tweets_info))
+#     df= pd.DataFrame(np.array(tweets_info))
     
-    df.to_csv("products.csv", index = False, header = False)
+#     df.to_csv("products.csv", index = False, header = False)
     
-    listt = sentiment.run(len(df))
+#     listt = sentiment.run(len(df))
 
-    #detele products.csv
-    subprocess.run('rm -r products.csv', shell=True)
+#     #detele products.csv
+#     subprocess.run('rm -r products.csv', shell=True)
 
-    return Response(json.dumps(listt),  mimetype='application/json')
+#     return Response(json.dumps(listt),  mimetype='application/json')
 
-    #send to machine learning module
-    #get results back
-    #send back to front end
+#     #send to machine learning module
+#     #get results back
+#     #send back to front end
 
-    # return Response(json.dumps(tweets_text),  mimetype='application/json')
+#     # return Response(json.dumps(tweets_text),  mimetype='application/json')
 
 
 #handles requestes sent by streamer.py

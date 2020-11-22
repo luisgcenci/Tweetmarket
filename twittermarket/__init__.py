@@ -6,7 +6,7 @@ import tweepy
 
 #database connection
 db = mysql.connector.connect(
-    host = 'localhost',
+    host = '127.0.0.1',
     user = 'lcenci',
     password = 'root',
     database = 'hack_db'
