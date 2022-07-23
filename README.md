@@ -1,4 +1,4 @@
-![alt-text](./1.jepg)
+![alt-text](./1.jpeg)
 
 # Inspiration
 The main inspiration for this idea comes from the fact that there can be better and cheaper alternatives for ads by suppliers in the market so that they don't get lost in the big place that the internet is and moreover, many big social media companies have ventured into the retail market so how can Twitter do that but in a more innovative way.
